@@ -1,259 +1,238 @@
 import {
-    BookOpen,
+    Clock3,
     Code2,
-    CheckCircle,
-    TrendingUp,
+    Target,
+    BookOpen,
 } from "lucide-react";
+
+import StatCard from "../components/StatCard.jsx";
+import Card from "../components/Card.jsx";
+import ProgressBar from "../components/ProgressBar.jsx";
+import Button from "../components/Button.jsx";
 
 function Dashboard() {
     return (
-        <div className="min-h-screen p-8 text-white">
+        <div className="min-h-full bg-[#09090f] p-4 sm:p-6 lg:p-8">
 
-            {/* Header */}
+            {/* =========================
+          Header
+      ========================= */}
+
             <div className="mb-8">
-                <p className="text-sm text-gray-500">
-                    Monday, September 14
+
+                <p className="text-xs font-medium uppercase tracking-widest text-purple-400 sm:text-sm">
+                    Your workspace
                 </p>
 
-                <h1 className="mt-2 text-3xl font-bold">
-                    Good Evening 👋
+                <h1 className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl">
+                    Good evening,{" "}
+                    <span className="sakura-gradient-text">
+            Krishna
+          </span>{" "}
+                    👋
                 </h1>
 
-                <p className="mt-2 text-gray-400">
-                    Let's make today productive with Sakura AI.
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-400 sm:text-base">
+                    Here's your progress and what needs your
+                    attention today.
                 </p>
-            </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-
-                <StatCard
-                    icon={<BookOpen size={22} />}
-                    title="Study Time"
-                    value="3.5h"
-                    subtitle="Today's learning"
-                />
-
-                <StatCard
-                    icon={<Code2 size={22} />}
-                    title="DSA Solved"
-                    value="8"
-                    subtitle="Problems today"
-                />
-
-                <StatCard
-                    icon={<CheckCircle size={22} />}
-                    title="Tasks"
-                    value="6 / 8"
-                    subtitle="Completed today"
-                />
 
             </div>
 
-            {/* AI Insight + Progress */}
-            <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-2">
+            {/* =========================
+          Stats
+      ========================= */}
+
+            <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+                <StatCard
+                    title="Study Hours"
+                    value="24.5h"
+                    subtitle="+12% this week"
+                    icon={Clock3}
+                    progress={72}
+                />
+
+                <StatCard
+                    title="DSA Problems"
+                    value="87"
+                    subtitle="+8 this week"
+                    icon={Code2}
+                    progress={58}
+                />
+
+                <StatCard
+                    title="Career Progress"
+                    value="64%"
+                    subtitle="+6% this month"
+                    icon={Target}
+                    progress={64}
+                />
+
+                <StatCard
+                    title="Study Streak"
+                    value="12 days"
+                    subtitle="Personal best"
+                    icon={BookOpen}
+                    progress={80}
+                />
+
+            </section>
+
+            {/* =========================
+          Main Content
+      ========================= */}
+
+            <section className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-3">
 
                 {/* AI Insight */}
-                <div className="rounded-2xl border border-white/10 bg-[#101018] p-6">
 
-                    <div className="flex items-center gap-3">
-                        <div className="text-2xl">
-                            🌸
+                <Card className="relative overflow-hidden xl:col-span-2">
+
+                    {/* Glow */}
+                    <div className="pointer-events-none absolute -right-20 -top-20 h-40 w-40 rounded-full bg-purple-500/10 blur-3xl" />
+
+                    <div className="relative">
+
+                        {/* Title */}
+
+                        <div className="flex items-center gap-3">
+
+                            <div className="sakura-glow flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-pink-500/20 to-purple-500/20 text-xl">
+                                🌸
+                            </div>
+
+                            <div>
+
+                                <h2 className="font-semibold text-white">
+                                    Sakura's Insight
+                                </h2>
+
+                                <p className="mt-0.5 text-xs text-gray-500">
+                                    Personalized for you
+                                </p>
+
+                            </div>
+
                         </div>
 
-                        <div>
-                            <h2 className="font-semibold">
-                                Sakura AI Insight
-                            </h2>
+                        {/* Content */}
 
-                            <p className="text-xs text-gray-500">
-                                Personalized recommendation
-                            </p>
+                        <p className="mt-5 max-w-3xl text-sm leading-7 text-gray-400 sm:text-base">
+                            Your DSA consistency has improved this
+                            week. You are solving more problems, but
+                            your dynamic programming accuracy still
+                            needs work.
+                        </p>
+
+                        {/* Button */}
+
+                        <div className="mt-5">
+                            <Button>
+                                View DSA Analysis →
+                            </Button>
                         </div>
+
                     </div>
 
-                    <p className="mt-5 leading-relaxed text-gray-300">
-                        You're making good progress this week.
-                        Focus on JavaScript and DSA today to
-                        strengthen your placement preparation.
-                    </p>
-
-                    <button className="mt-5 rounded-lg bg-purple-500/20 px-4 py-2 text-sm text-purple-300 transition hover:bg-purple-500/30">
-                        View Recommendation →
-                    </button>
-
-                </div>
+                </Card>
 
                 {/* Weekly Progress */}
-                <div className="rounded-2xl border border-white/10 bg-[#101018] p-6">
 
-                    <div className="flex items-center justify-between">
-                        <h2 className="font-semibold">
-                            Weekly Progress
-                        </h2>
+                <Card>
 
-                        <span className="text-sm text-gray-400">
-              82%
-            </span>
-                    </div>
+                    <h2 className="font-semibold text-white">
+                        Weekly Progress
+                    </h2>
 
-                    <div className="mt-5 h-3 w-full overflow-hidden rounded-full bg-white/10">
-                        <div
-                            className="h-full rounded-full bg-purple-500"
-                            style={{ width: "82%" }}
+                    <p className="mt-1 text-xs text-gray-500">
+                        Your activity this week
+                    </p>
+
+                    <div className="mt-6 space-y-5">
+
+                        <ProgressBar
+                            label="DSA"
+                            value={72}
                         />
+
+                        <ProgressBar
+                            label="React"
+                            value={84}
+                        />
+
+                        <ProgressBar
+                            label="JavaScript"
+                            value={68}
+                        />
+
+                        <ProgressBar
+                            label="Japanese"
+                            value={45}
+                        />
+
                     </div>
 
-                    <div className="mt-4 flex items-center gap-2 text-sm text-gray-400">
-                        <TrendingUp size={17} />
-                        You're improving consistently.
-                    </div>
+                </Card>
 
-                    <div className="mt-6 grid grid-cols-3 gap-3 text-center">
+            </section>
 
-                        <div className="rounded-xl bg-white/5 p-3">
-                            <p className="text-lg font-semibold">
-                                18h
+            {/* =========================
+          Today's Tasks
+      ========================= */}
+
+            <section className="mt-6">
+
+                <Card>
+
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+
+                        <div>
+
+                            <h2 className="font-semibold text-white">
+                                Today's Tasks
+                            </h2>
+
+                            <p className="mt-1 text-xs text-gray-500">
+                                Keep your momentum going
                             </p>
-                            <p className="text-xs text-gray-500">
-                                Study
-                            </p>
+
                         </div>
 
-                        <div className="rounded-xl bg-white/5 p-3">
-                            <p className="text-lg font-semibold">
-                                32
-                            </p>
-                            <p className="text-xs text-gray-500">
-                                DSA
-                            </p>
-                        </div>
-
-                        <div className="rounded-xl bg-white/5 p-3">
-                            <p className="text-lg font-semibold">
-                                24
-                            </p>
-                            <p className="text-xs text-gray-500">
-                                Tasks
-                            </p>
-                        </div>
+                        <span className="w-fit rounded-full border border-purple-500/20 bg-purple-500/10 px-3 py-1 text-xs font-medium text-purple-400">
+              3 remaining
+            </span>
 
                     </div>
 
-                </div>
+                    <div className="mt-5 space-y-3">
 
-            </div>
+                        {[
+                            "Solve 3 DSA problems",
+                            "Complete React revision",
+                            "Practice Japanese N5 vocabulary",
+                        ].map((task) => (
 
-            {/* Today's Tasks */}
-            <div className="mt-6 rounded-2xl border border-white/10 bg-[#101018] p-6">
+                            <div
+                                key={task}
+                                className="group flex items-center gap-3 rounded-xl border border-white/5 bg-white/[0.02] p-3 transition-all duration-200 hover:border-purple-500/20 hover:bg-white/[0.04] sm:p-4"
+                            >
 
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h2 className="font-semibold">
-                            Today's Tasks
-                        </h2>
+                                <div className="h-4 w-4 shrink-0 rounded-full border border-gray-600 transition group-hover:border-purple-400" />
 
-                        <p className="mt-1 text-xs text-gray-500">
-                            Keep your momentum going
-                        </p>
+                                <span className="text-sm text-gray-300 transition group-hover:text-white">
+                  {task}
+                </span>
+
+                            </div>
+
+                        ))}
+
                     </div>
 
-                    <span className="text-sm text-gray-500">
-            6/8 completed
-          </span>
-                </div>
+                </Card>
 
-                <div className="mt-6 space-y-4">
-
-                    <Task
-                        text="React practice"
-                        completed={true}
-                    />
-
-                    <Task
-                        text="DSA Arrays — 5 problems"
-                    />
-
-                    <Task
-                        text="JavaScript revision"
-                    />
-
-                    <Task
-                        text="Japanese vocabulary"
-                    />
-
-                </div>
-
-            </div>
-
-        </div>
-    );
-}
-
-
-/* Stat Card */
-function StatCard({
-                      icon,
-                      title,
-                      value,
-                      subtitle,
-                  }) {
-    return (
-        <div className="rounded-2xl border border-white/10 bg-[#101018] p-5 transition hover:border-purple-500/30">
-
-            <div className="mb-4 text-purple-400">
-                {icon}
-            </div>
-
-            <p className="text-sm text-gray-500">
-                {title}
-            </p>
-
-            <h2 className="mt-1 text-2xl font-bold">
-                {value}
-            </h2>
-
-            <p className="mt-1 text-xs text-gray-600">
-                {subtitle}
-            </p>
-
-        </div>
-    );
-}
-
-
-/* Task */
-function Task({
-                  text,
-                  completed = false,
-              }) {
-    return (
-        <div className="flex items-center gap-3">
-
-            <div
-                className={`flex h-5 w-5 items-center justify-center rounded-md border ${
-                    completed
-                        ? "border-purple-500 bg-purple-500"
-                        : "border-white/20"
-                }`}
-            >
-                {completed && (
-                    <CheckCircle
-                        size={14}
-                        className="text-white"
-                    />
-                )}
-            </div>
-
-            <span
-                className={
-                    completed
-                        ? "text-gray-500 line-through"
-                        : "text-gray-300"
-                }
-            >
-        {text}
-      </span>
+            </section>
 
         </div>
     );

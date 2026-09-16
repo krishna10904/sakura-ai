@@ -1,162 +1,131 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import Sidebar from "./components/Sidebar.jsx";
+import DashboardLayout from "./layouts/DashboardLayout.jsx";
+
 import Dashboard from "./pages/Dashboard.jsx";
+import FormDemo from "./pages/FormDemo.jsx";
+
+function Placeholder({ title }) {
+    return (
+        <div className="flex min-h-full items-center justify-center p-8">
+            <div className="text-center">
+                <div className="mb-4 text-4xl">
+                    🌸
+                </div>
+
+                <h1 className="text-3xl font-bold text-white">
+                    {title}
+                </h1>
+
+                <p className="mt-2 text-gray-500">
+                    This module is coming soon.
+                </p>
+            </div>
+        </div>
+    );
+}
 
 function App() {
-  return (
-      <BrowserRouter>
-        <div className="flex min-h-screen bg-[#09090f]">
+    return (
+        <BrowserRouter>
+            <DashboardLayout>
 
-          {/* Sidebar */}
-          <Sidebar />
+                <Routes>
 
-          {/* Main Content */}
-          <main className="flex-1">
+                    {/* =========================
+                        Dashboard
+                    ========================= */}
 
-            <Routes>
+                    <Route
+                        path="/"
+                        element={<Dashboard />}
+                    />
 
-              {/* Dashboard */}
-              <Route
-                  path="/"
-                  element={<Dashboard />}
-              />
+                    {/* =========================
+                        Development / Testing
+                    ========================= */}
 
-              {/* AI Assistant */}
-              <Route
-                  path="/assistant"
-                  element={
-                    <div className="p-8 text-white">
-                      <h1 className="text-3xl font-bold">
-                        AI Assistant 🤖
-                      </h1>
+                    <Route
+                        path="/form-demo"
+                        element={<FormDemo />}
+                    />
 
-                      <p className="mt-3 text-gray-400">
-                        Your personal AI assistant.
-                      </p>
-                    </div>
-                  }
-              />
+                    {/* =========================
+                        Sakura AI Modules
+                    ========================= */}
 
-              {/* Study Coach */}
-              <Route
-                  path="/study"
-                  element={
-                    <div className="p-8 text-white">
-                      <h1 className="text-3xl font-bold">
-                        Study Coach 📚
-                      </h1>
+                    <Route
+                        path="/assistant"
+                        element={
+                            <Placeholder title="AI Assistant" />
+                        }
+                    />
 
-                      <p className="mt-3 text-gray-400">
-                        Personalized study planning and progress.
-                      </p>
-                    </div>
-                  }
-              />
+                    <Route
+                        path="/study"
+                        element={
+                            <Placeholder title="Study Coach" />
+                        }
+                    />
 
-              {/* DSA Coach */}
-              <Route
-                  path="/dsa"
-                  element={
-                    <div className="p-8 text-white">
-                      <h1 className="text-3xl font-bold">
-                        DSA Coach 💻
-                      </h1>
+                    <Route
+                        path="/dsa"
+                        element={
+                            <Placeholder title="DSA Coach" />
+                        }
+                    />
 
-                      <p className="mt-3 text-gray-400">
-                        Practice DSA and track your progress.
-                      </p>
-                    </div>
-                  }
-              />
+                    <Route
+                        path="/career"
+                        element={
+                            <Placeholder title="Career Copilot" />
+                        }
+                    />
 
-              {/* Career */}
-              <Route
-                  path="/career"
-                  element={
-                    <div className="p-8 text-white">
-                      <h1 className="text-3xl font-bold">
-                        Career Copilot 💼
-                      </h1>
+                    <Route
+                        path="/interview"
+                        element={
+                            <Placeholder title="AI Interview" />
+                        }
+                    />
 
-                      <p className="mt-3 text-gray-400">
-                        Resume, jobs and skill-gap analysis.
-                      </p>
-                    </div>
-                  }
-              />
+                    <Route
+                        path="/documents"
+                        element={
+                            <Placeholder title="Documents" />
+                        }
+                    />
 
-              {/* Interview */}
-              <Route
-                  path="/interview"
-                  element={
-                    <div className="p-8 text-white">
-                      <h1 className="text-3xl font-bold">
-                        AI Interview 🎤
-                      </h1>
+                    <Route
+                        path="/japan"
+                        element={
+                            <Placeholder title="Japan Mode" />
+                        }
+                    />
 
-                      <p className="mt-3 text-gray-400">
-                        Practice technical and HR interviews.
-                      </p>
-                    </div>
-                  }
-              />
+                    <Route
+                        path="/analytics"
+                        element={
+                            <Placeholder title="Analytics" />
+                        }
+                    />
 
-              {/* Documents */}
-              <Route
-                  path="/documents"
-                  element={
-                    <div className="p-8 text-white">
-                      <h1 className="text-3xl font-bold">
-                        Documents 📄
-                      </h1>
+                    {/* =========================
+                        404
+                    ========================= */}
 
-                      <p className="mt-3 text-gray-400">
-                        Upload and interact with your documents.
-                      </p>
-                    </div>
-                  }
-              />
+                    <Route
+                        path="*"
+                        element={
+                            <Placeholder title="Page Not Found" />
+                        }
+                    />
 
-              {/* Japan Mode */}
-              <Route
-                  path="/japan"
-                  element={
-                    <div className="p-8 text-white">
-                      <h1 className="text-3xl font-bold">
-                        Japan Mode 🇯🇵
-                      </h1>
+                </Routes>
 
-                      <p className="mt-3 text-gray-400">
-                        Prepare for Japanese jobs and interviews.
-                      </p>
-                    </div>
-                  }
-              />
-
-              {/* Analytics */}
-              <Route
-                  path="/analytics"
-                  element={
-                    <div className="p-8 text-white">
-                      <h1 className="text-3xl font-bold">
-                        Analytics 📊
-                      </h1>
-
-                      <p className="mt-3 text-gray-400">
-                        Track your learning and career progress.
-                      </p>
-                    </div>
-                  }
-              />
-
-            </Routes>
-
-          </main>
-
-        </div>
-      </BrowserRouter>
-  );
+            </DashboardLayout>
+        </BrowserRouter>
+    );
 }
 
 export default App;
