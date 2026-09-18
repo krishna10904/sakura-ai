@@ -4,6 +4,15 @@ import DashboardLayout from "./layouts/DashboardLayout.jsx";
 
 import Dashboard from "./pages/Dashboard.jsx";
 import FormDemo from "./pages/FormDemo.jsx";
+import ModalDemo from "./pages/ModalDemo.jsx";
+import Documents from "./pages/Documents.jsx";
+import Assistant from "./pages/Assistant.jsx";
+import DSACoach from "./pages/DSACoach.jsx";
+import CareerCopilot from "./pages/CareerCopilot.jsx";
+import AIInterview from "./pages/AIInterview.jsx";
+import JapanMode from "./pages/JapanMode.jsx";
+import Analytics from "./pages/Analytics.jsx";
+import StudyCoach from "./pages/StudyCoach.jsx";
 
 function Placeholder({ title }) {
     return (
@@ -41,6 +50,27 @@ function App() {
                         element={<Dashboard />}
                     />
 
+
+                    {/* =========================
+                        AI Modules
+                    ========================= */}
+
+                    <Route
+                        path="/assistant"
+                        element={<Assistant />}
+                    />
+
+                    <Route
+                        path="/dsa"
+                        element={<DSACoach />}
+                    />
+
+                    <Route
+                        path="/documents"
+                        element={<Documents />}
+                    />
+
+
                     {/* =========================
                         Development / Testing
                     ========================= */}
@@ -50,65 +80,41 @@ function App() {
                         element={<FormDemo />}
                     />
 
+                    <Route
+                        path="/modal-demo"
+                        element={<ModalDemo />}
+                    />
+
+
                     {/* =========================
-                        Sakura AI Modules
+                        Upcoming Modules
                     ========================= */}
 
                     <Route
-                        path="/assistant"
-                        element={
-                            <Placeholder title="AI Assistant" />
-                        }
-                    />
-
-                    <Route
                         path="/study"
-                        element={
-                            <Placeholder title="Study Coach" />
-                        }
-                    />
-
-                    <Route
-                        path="/dsa"
-                        element={
-                            <Placeholder title="DSA Coach" />
-                        }
+                        element={<StudyCoach />}
                     />
 
                     <Route
                         path="/career"
-                        element={
-                            <Placeholder title="Career Copilot" />
-                        }
+                        element={<CareerCopilot />}
                     />
 
                     <Route
                         path="/interview"
-                        element={
-                            <Placeholder title="AI Interview" />
-                        }
-                    />
-
-                    <Route
-                        path="/documents"
-                        element={
-                            <Placeholder title="Documents" />
-                        }
+                        element={<AIInterview />}
                     />
 
                     <Route
                         path="/japan"
-                        element={
-                            <Placeholder title="Japan Mode" />
-                        }
+                        element={<JapanMode />}
                     />
 
                     <Route
                         path="/analytics"
-                        element={
-                            <Placeholder title="Analytics" />
-                        }
+                        element={<Analytics />}
                     />
+
 
                     {/* =========================
                         404
