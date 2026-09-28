@@ -14,6 +14,9 @@ import JapanMode from "./pages/JapanMode.jsx";
 import Analytics from "./pages/Analytics.jsx";
 import StudyCoach from "./pages/StudyCoach.jsx";
 
+import Login from "./pages/Login.jsx";
+import Register from "./pages/Register.jsx";
+
 function Placeholder({ title }) {
     return (
         <div className="flex min-h-full items-center justify-center p-8">
@@ -37,19 +40,34 @@ function Placeholder({ title }) {
 function App() {
     return (
         <BrowserRouter>
-            <DashboardLayout>
+            <Routes>
 
-                <Routes>
+                {/* =========================
+                    Authentication
+                ========================= */}
 
-                    {/* =========================
-                        Dashboard
-                    ========================= */}
+                <Route
+                    path="/login"
+                    element={<Login />}
+                />
 
+                <Route
+                    path="/register"
+                    element={<Register />}
+                />
+
+
+                {/* =========================
+                    Dashboard Application
+                ========================= */}
+
+                <Route
+                    element={<DashboardLayout />}
+                >
                     <Route
                         path="/"
                         element={<Dashboard />}
                     />
-
 
                     {/* =========================
                         AI Modules
@@ -70,7 +88,6 @@ function App() {
                         element={<Documents />}
                     />
 
-
                     {/* =========================
                         Development / Testing
                     ========================= */}
@@ -85,9 +102,8 @@ function App() {
                         element={<ModalDemo />}
                     />
 
-
                     {/* =========================
-                        Upcoming Modules
+                        Career Modules
                     ========================= */}
 
                     <Route
@@ -114,22 +130,21 @@ function App() {
                         path="/analytics"
                         element={<Analytics />}
                     />
+                </Route>
 
 
-                    {/* =========================
-                        404
-                    ========================= */}
+                {/* =========================
+                    404
+                ========================= */}
 
-                    <Route
-                        path="*"
-                        element={
-                            <Placeholder title="Page Not Found" />
-                        }
-                    />
+                <Route
+                    path="*"
+                    element={
+                        <Placeholder title="Page Not Found" />
+                    }
+                />
 
-                </Routes>
-
-            </DashboardLayout>
+            </Routes>
         </BrowserRouter>
     );
 }
