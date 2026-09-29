@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
     Clock3,
     Code2,
@@ -15,7 +16,13 @@ import GlassCard from "../components/GlassCard.jsx";
 import ProgressBar from "../components/ProgressBar.jsx";
 import Button from "../components/Button.jsx";
 
+import api from "../services/api.js";
+
 function Dashboard() {
+    const [dashboard, setDashboard] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+
     const tasks = [
         {
             title: "Solve 3 DSA problems",
@@ -33,6 +40,68 @@ function Dashboard() {
             completed: true,
         },
     ];
+
+    useEffect(() => {
+        const fetchDashboard = async () => {
+            try {
+                setLoading(true);
+
+                const response = await api.get("/dashboard");
+
+                setDashboard(response.data.dashboard);
+            } catch (error) {
+                console.error("Dashboard error:", error);
+
+                setError(
+                    error.response?.data?.message ||
+                    "Unable to load dashboard"
+                );
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDashboard();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-[#09090f]">
+                <div className="text-center">
+                    <div className="mb-4 text-4xl">
+                        🌸
+                    </div>
+
+                    <p className="text-sm text-gray-400">
+                        Loading your Sakura workspace...
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-[#09090f] p-6">
+                <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-8 text-center">
+                    <div className="mb-4 text-4xl">
+                        ⚠️
+                    </div>
+
+                    <h2 className="text-lg font-semibold text-white">
+                        Unable to load dashboard
+                    </h2>
+
+                    <p className="mt-2 text-sm text-red-400">
+                        {error}
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
+    const user = dashboard?.user;
+    const stats = dashboard?.stats;
 
     return (
         <div className="min-h-full bg-[#09090f] p-4 sm:p-6 lg:p-8">
@@ -52,29 +121,39 @@ function Dashboard() {
                 </div>
 
                 <div className="mt-2 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl">
                             Good evening,{" "}
                             <span className="sakura-gradient-text">
-                Krishna
-              </span>{" "}
+                                {user?.name || "there"}
+                            </span>{" "}
                             👋
                         </h1>
 
                         <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-400 sm:text-base">
                             Here's your progress and what needs your attention today.
                         </p>
+
+                        <div className="mt-3 flex flex-wrap gap-2">
+                            <span className="rounded-full border border-purple-500/20 bg-purple-500/10 px-3 py-1 text-xs text-purple-400">
+                                🎯 {user?.targetRole || "Software Developer"}
+                            </span>
+
+                            <span className="rounded-full border border-pink-500/20 bg-pink-500/10 px-3 py-1 text-xs text-pink-400">
+                                🇯🇵 {user?.targetCountry || "Japan"}
+                            </span>
+
+                            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-gray-400">
+                                Japanese {user?.japaneseLevel || "N5"}
+                            </span>
+                        </div>
                     </div>
 
                     {/* Streak */}
-                    <div
-                        className="
-              flex w-fit items-center gap-3
-              rounded-xl border border-orange-500/10
-              bg-orange-500/[0.05]
-              px-4 py-3
-            "
-                    >
+
+                    <div className="flex w-fit items-center gap-3 rounded-xl border border-orange-500/10 bg-orange-500/[0.05] px-4 py-3">
+
                         <Flame
                             size={20}
                             className="text-orange-400"
@@ -86,9 +165,10 @@ function Dashboard() {
                             </p>
 
                             <p className="text-sm font-semibold text-white">
-                                12 days 🔥
+                                Coming soon 🔥
                             </p>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -99,34 +179,34 @@ function Dashboard() {
 
                 <StatCard
                     title="Study Hours"
-                    value="24.5h"
-                    subtitle="+12% this week"
+                    value={`${stats?.studyHours || 0}h`}
+                    subtitle="Tracked in Sakura AI"
                     icon={Clock3}
-                    progress={72}
+                    progress={0}
                 />
 
                 <StatCard
                     title="DSA Problems"
-                    value="87"
-                    subtitle="+8 this week"
+                    value={stats?.dsaSolved || 0}
+                    subtitle="Problems solved"
                     icon={Code2}
-                    progress={58}
+                    progress={0}
                 />
 
                 <StatCard
                     title="Career Progress"
-                    value="64%"
-                    subtitle="+6% this month"
+                    value="Coming soon"
+                    subtitle="Career tracking will be added"
                     icon={Target}
-                    progress={64}
+                    progress={0}
                 />
 
                 <StatCard
                     title="Study Streak"
-                    value="12 days"
-                    subtitle="Personal best"
+                    value="Coming soon"
+                    subtitle="Streak tracking will be added"
                     icon={BookOpen}
-                    progress={80}
+                    progress={0}
                 />
 
             </section>
@@ -147,17 +227,7 @@ function Dashboard() {
 
                             <div className="flex items-center gap-3">
 
-                                <div
-                                    className="
-                    flex h-11 w-11 shrink-0
-                    items-center justify-center
-                    rounded-xl
-                    bg-gradient-to-br
-                    from-pink-500/20
-                    to-purple-500/20
-                    text-xl
-                  "
-                                >
+                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-pink-500/20 to-purple-500/20 text-xl">
                                     🌸
                                 </div>
 
@@ -181,9 +251,9 @@ function Dashboard() {
                         </div>
 
                         <p className="mt-6 max-w-3xl text-sm leading-7 text-gray-400 sm:text-base">
-                            Your DSA consistency has improved this week.
-                            You're solving more problems, but Dynamic
-                            Programming accuracy still needs attention.
+                            Your personalized AI insights will appear here
+                            as Sakura AI learns from your study activity,
+                            DSA progress and career goals.
                         </p>
 
                         <div className="mt-6 flex flex-wrap gap-3">
@@ -217,15 +287,7 @@ function Dashboard() {
                             </p>
                         </div>
 
-                        <div
-                            className="
-                flex h-9 w-9
-                items-center justify-center
-                rounded-lg
-                bg-purple-500/10
-                text-purple-400
-              "
-                        >
+                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-500/10 text-purple-400">
                             <Target size={17} />
                         </div>
 
@@ -235,25 +297,29 @@ function Dashboard() {
 
                         <ProgressBar
                             label="DSA"
-                            value={72}
+                            value={0}
                         />
 
                         <ProgressBar
                             label="React"
-                            value={84}
+                            value={0}
                         />
 
                         <ProgressBar
                             label="JavaScript"
-                            value={68}
+                            value={0}
                         />
 
                         <ProgressBar
                             label="Japanese"
-                            value={45}
+                            value={0}
                         />
 
                     </div>
+
+                    <p className="mt-5 text-xs text-gray-600">
+                        Detailed weekly analytics coming soon.
+                    </p>
 
                 </Card>
 
@@ -277,18 +343,9 @@ function Dashboard() {
                             </p>
                         </div>
 
-                        <span
-                            className="
-                w-fit rounded-full
-                border border-purple-500/20
-                bg-purple-500/10
-                px-3 py-1
-                text-xs font-medium
-                text-purple-400
-              "
-                        >
-              2 remaining
-            </span>
+                        <span className="w-fit rounded-full border border-purple-500/20 bg-purple-500/10 px-3 py-1 text-xs font-medium text-purple-400">
+                            2 remaining
+                        </span>
 
                     </div>
 
@@ -298,52 +355,29 @@ function Dashboard() {
 
                             <div
                                 key={task.title}
-                                className="
-                  group flex items-center gap-3
-                  rounded-xl
-                  border border-white/5
-                  bg-white/[0.02]
-                  p-3
-                  transition-all duration-200
-                  hover:border-purple-500/20
-                  hover:bg-white/[0.04]
-                  sm:p-4
-                "
+                                className="group flex items-center gap-3 rounded-xl border border-white/5 bg-white/[0.02] p-3 transition-all duration-200 hover:border-purple-500/20 hover:bg-white/[0.04] sm:p-4"
                             >
 
-                                {/* Checkbox */}
-
                                 <div
-                                    className={`
-                    flex h-5 w-5 shrink-0
-                    items-center justify-center
-                    rounded-full border
-                    transition-all
-                    ${
+                                    className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-all ${
                                         task.completed
                                             ? "border-green-500/40 bg-green-500/10 text-green-400"
                                             : "border-gray-600 group-hover:border-purple-400"
-                                    }
-                  `}
+                                    }`}
                                 >
                                     {task.completed && (
                                         <CheckCircle2 size={14} />
                                     )}
                                 </div>
 
-                                {/* Task */}
-
                                 <div className="min-w-0 flex-1">
 
                                     <p
-                                        className={`
-                      text-sm transition
-                      ${
+                                        className={`text-sm transition ${
                                             task.completed
                                                 ? "text-gray-600 line-through"
                                                 : "text-gray-300 group-hover:text-white"
-                                        }
-                    `}
+                                        }`}
                                     >
                                         {task.title}
                                     </p>
@@ -354,17 +388,10 @@ function Dashboard() {
 
                                 </div>
 
-                                {/* Arrow */}
-
                                 {!task.completed && (
                                     <ArrowRight
                                         size={16}
-                                        className="
-                      text-gray-700
-                      transition-all
-                      group-hover:translate-x-1
-                      group-hover:text-purple-400
-                    "
+                                        className="text-gray-700 transition-all group-hover:translate-x-1 group-hover:text-purple-400"
                                     />
                                 )}
 
@@ -397,15 +424,7 @@ function Dashboard() {
                             Continue today's coding practice.
                         </p>
 
-                        <button
-                            className="
-                mt-4 flex items-center gap-2
-                text-xs font-medium
-                text-purple-400
-                transition
-                hover:text-purple-300
-              "
-                        >
+                        <button className="mt-4 flex items-center gap-2 text-xs font-medium text-purple-400 transition hover:text-purple-300">
                             Start practice
                             <ArrowRight size={14} />
                         </button>
@@ -428,15 +447,7 @@ function Dashboard() {
                             Continue your personalized study plan.
                         </p>
 
-                        <button
-                            className="
-                mt-4 flex items-center gap-2
-                text-xs font-medium
-                text-pink-400
-                transition
-                hover:text-pink-300
-              "
-                        >
+                        <button className="mt-4 flex items-center gap-2 text-xs font-medium text-pink-400 transition hover:text-pink-300">
                             Open study plan
                             <ArrowRight size={14} />
                         </button>
@@ -459,15 +470,7 @@ function Dashboard() {
                             Check your career roadmap and skill gaps.
                         </p>
 
-                        <button
-                            className="
-                mt-4 flex items-center gap-2
-                text-xs font-medium
-                text-blue-400
-                transition
-                hover:text-blue-300
-              "
-                        >
+                        <button className="mt-4 flex items-center gap-2 text-xs font-medium text-blue-400 transition hover:text-blue-300">
                             View roadmap
                             <ArrowRight size={14} />
                         </button>

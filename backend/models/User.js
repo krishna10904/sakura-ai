@@ -48,11 +48,24 @@ const userSchema = new mongoose.Schema(
         studyHours: {
             type: Number,
             default: 0,
+            min: 0,
         },
 
         dsaSolved: {
             type: Number,
             default: 0,
+            min: 0,
+        },
+
+        studyStreak: {
+            type: Number,
+            default: 0,
+            min: 0,
+        },
+
+        lastStudyDate: {
+            type: Date,
+            default: null,
         },
     },
     {
