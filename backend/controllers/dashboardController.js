@@ -24,9 +24,12 @@ const getDashboard = async (req, res) => {
                     japaneseLevel: user.japaneseLevel,
                     skills: user.skills,
                 },
+
                 stats: {
                     studyHours: user.studyHours,
                     dsaSolved: user.dsaSolved,
+                    studyStreak: user.studyStreak,
+                    lastStudyDate: user.lastStudyDate,
                 },
             },
         });

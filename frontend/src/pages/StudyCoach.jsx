@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     BookOpen,
     Clock3,
@@ -15,6 +15,7 @@ import {
 import Card from "../components/Card.jsx";
 import ProgressBar from "../components/ProgressBar.jsx";
 import Button from "../components/Button.jsx";
+import api from "../services/api.js";
 
 const subjects = [
     {
@@ -93,11 +94,49 @@ const recommendedTopics = [
 
 function StudyCoach() {
     const [tasks, setTasks] = useState(todayTasks);
+
+    const [studyHours, setStudyHours] = useState(0);
+    const [studyStreak, setStudyStreak] = useState(0);
+
     const [studyStarted, setStudyStarted] = useState(false);
+    const [selectedDuration, setSelectedDuration] = useState(1);
+
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+
+    const [message, setMessage] = useState("");
+    const [error, setError] = useState("");
 
     const completedTasks = tasks.filter(
         (task) => task.completed
     ).length;
+
+    useEffect(() => {
+        const fetchStudyStats = async () => {
+            try {
+                setLoading(true);
+                setError("");
+
+                const response = await api.get("/dashboard");
+
+                const stats = response.data.dashboard?.stats;
+
+                setStudyHours(stats?.studyHours || 0);
+                setStudyStreak(stats?.studyStreak || 0);
+            } catch (err) {
+                console.error("Study stats error:", err);
+
+                setError(
+                    err.response?.data?.message ||
+                    "Unable to load study statistics"
+                );
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchStudyStats();
+    }, []);
 
     const toggleTask = (index) => {
         setTasks((currentTasks) =>
@@ -111,6 +150,81 @@ function StudyCoach() {
             )
         );
     };
+
+    const startStudySession = () => {
+        setError("");
+        setMessage("");
+
+        setStudyStarted(true);
+
+        setMessage(
+            `Study session started for ${selectedDuration} hour${
+                selectedDuration !== 1 ? "s" : ""
+            } 🌸`
+        );
+    };
+
+    const completeStudySession = async () => {
+        try {
+            setSaving(true);
+            setError("");
+            setMessage("");
+
+            const response = await api.post("/study", {
+                hours: selectedDuration,
+            });
+
+            if (response.data.success) {
+                const stats = response.data.stats;
+
+                setStudyHours(stats.studyHours);
+                setStudyStreak(stats.studyStreak);
+
+                setStudyStarted(false);
+
+                setMessage(
+                    `Session completed! +${selectedDuration} hour${
+                        selectedDuration !== 1 ? "s" : ""
+                    } added 🌸`
+                );
+            }
+        } catch (err) {
+            console.error("Study session error:", err);
+
+            setError(
+                err.response?.data?.message ||
+                "Unable to save study session"
+            );
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const studyProgress = Math.min(
+        (studyHours / 4) * 100,
+        100
+    );
+
+    const weeklyProgress = Math.min(
+        (studyHours / 25) * 100,
+        100
+    );
+
+    if (loading) {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-[#09090f]">
+                <div className="text-center">
+                    <div className="mb-4 text-4xl">
+                        🌸
+                    </div>
+
+                    <p className="text-sm text-gray-400">
+                        Loading your study workspace...
+                    </p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-full bg-[#09090f] p-4 sm:p-6 lg:p-8">
@@ -131,8 +245,8 @@ function StudyCoach() {
                 <h1 className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl">
                     Learn{" "}
                     <span className="sakura-gradient-text">
-            Smarter
-          </span>
+                        Smarter
+                    </span>
                 </h1>
 
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-400 sm:text-base">
@@ -152,7 +266,7 @@ function StudyCoach() {
                             </p>
 
                             <h2 className="mt-2 text-3xl font-bold text-white">
-                                2.5h
+                                {studyHours}h
                             </h2>
 
                             <p className="mt-2 text-xs text-green-400">
@@ -196,7 +310,7 @@ function StudyCoach() {
                             </p>
 
                             <h2 className="mt-2 text-3xl font-bold text-white">
-                                12 days
+                                {studyStreak} days
                             </h2>
 
                             <p className="mt-2 flex items-center gap-1 text-xs text-orange-400">
@@ -219,11 +333,11 @@ function StudyCoach() {
                             </p>
 
                             <h2 className="mt-2 text-3xl font-bold text-white">
-                                67%
+                                {Math.round(weeklyProgress)}%
                             </h2>
 
                             <p className="mt-2 text-xs text-gray-600">
-                                Across all subjects
+                                Weekly study progress
                             </p>
                         </div>
 
@@ -238,7 +352,6 @@ function StudyCoach() {
             {/* Today's Plan + AI Insight */}
             <section className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-3">
 
-                {/* Today's Plan */}
                 <Card className="xl:col-span-2">
 
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -262,8 +375,8 @@ function StudyCoach() {
                         </div>
 
                         <span className="w-fit rounded-full border border-purple-500/10 bg-purple-500/5 px-3 py-1 text-xs text-purple-400">
-              {completedTasks}/{tasks.length} completed
-            </span>
+                            {completedTasks}/{tasks.length} completed
+                        </span>
 
                     </div>
 
@@ -276,27 +389,27 @@ function StudyCoach() {
                                 type="button"
                                 onClick={() => toggleTask(index)}
                                 className={`
-                  flex w-full items-center gap-4
-                  rounded-xl border p-4
-                  text-left
-                  transition-all duration-200
-                  ${
+                                    flex w-full items-center gap-4
+                                    rounded-xl border p-4
+                                    text-left
+                                    transition-all duration-200
+                                    ${
                                     task.completed
                                         ? "border-green-500/10 bg-green-500/[0.03]"
                                         : "border-white/5 bg-white/[0.02] hover:border-purple-500/20 hover:bg-white/[0.04]"
                                 }
-                `}
+                                `}
                             >
 
                                 <div
                                     className={`
-                    flex h-10 w-10 shrink-0 items-center justify-center rounded-xl
-                    ${
+                                        flex h-10 w-10 shrink-0 items-center justify-center rounded-xl
+                                        ${
                                         task.completed
                                             ? "bg-green-500/10 text-green-400"
                                             : "bg-purple-500/10 text-purple-400"
                                     }
-                  `}
+                                    `}
                                 >
                                     {task.completed ? (
                                         <CheckCircle2 size={18} />
@@ -309,30 +422,30 @@ function StudyCoach() {
 
                                     <h3
                                         className={`
-                      text-sm font-medium
-                      ${
+                                            text-sm font-medium
+                                            ${
                                             task.completed
                                                 ? "text-gray-500 line-through"
                                                 : "text-white"
                                         }
-                    `}
+                                        `}
                                     >
                                         {task.title}
                                     </h3>
 
                                     <div className="mt-1 flex items-center gap-2">
 
-                    <span className="text-xs text-gray-600">
-                      {task.type}
-                    </span>
+                                        <span className="text-xs text-gray-600">
+                                            {task.type}
+                                        </span>
 
                                         <span className="text-gray-700">
-                      •
-                    </span>
+                                            •
+                                        </span>
 
                                         <span className="text-xs text-gray-600">
-                      {task.duration}
-                    </span>
+                                            {task.duration}
+                                        </span>
 
                                     </div>
 
@@ -351,18 +464,79 @@ function StudyCoach() {
 
                     </div>
 
+                    {/* Study Session */}
                     <div className="mt-5">
 
-                        <Button
-                            icon={Play}
-                            onClick={() =>
-                                setStudyStarted(!studyStarted)
-                            }
-                        >
-                            {studyStarted
-                                ? "Study Session Active"
-                                : "Start Study Session"}
-                        </Button>
+                        {!studyStarted && (
+                            <div className="mb-4">
+                                <p className="mb-2 text-xs font-medium text-gray-500">
+                                    Session Duration
+                                </p>
+
+                                <div className="flex flex-wrap gap-2">
+
+                                    {[0.5, 1, 1.5, 2].map(
+                                        (duration) => (
+                                            <button
+                                                key={duration}
+                                                type="button"
+                                                onClick={() =>
+                                                    setSelectedDuration(
+                                                        duration
+                                                    )
+                                                }
+                                                className={`
+                                                    rounded-lg border px-4 py-2 text-xs font-medium transition
+                                                    ${
+                                                    selectedDuration ===
+                                                    duration
+                                                        ? "border-purple-500/40 bg-purple-500/10 text-purple-300"
+                                                        : "border-white/10 bg-white/[0.02] text-gray-500 hover:border-purple-500/20 hover:text-gray-300"
+                                                }
+                                                `}
+                                            >
+                                                {duration} hour
+                                                {duration !== 1
+                                                    ? "s"
+                                                    : ""}
+                                            </button>
+                                        )
+                                    )}
+
+                                </div>
+                            </div>
+                        )}
+
+                        {message && (
+                            <div className="mb-4 rounded-xl border border-green-500/10 bg-green-500/[0.04] px-4 py-3 text-sm text-green-400">
+                                {message}
+                            </div>
+                        )}
+
+                        {error && (
+                            <div className="mb-4 rounded-xl border border-red-500/10 bg-red-500/[0.04] px-4 py-3 text-sm text-red-400">
+                                {error}
+                            </div>
+                        )}
+
+                        {!studyStarted ? (
+                            <Button
+                                icon={Play}
+                                onClick={startStudySession}
+                            >
+                                Start Study Session
+                            </Button>
+                        ) : (
+                            <Button
+                                icon={CheckCircle2}
+                                onClick={completeStudySession}
+                                disabled={saving}
+                            >
+                                {saving
+                                    ? "Saving Session..."
+                                    : "Complete Study Session"}
+                            </Button>
+                        )}
 
                     </div>
 
@@ -459,9 +633,9 @@ function StudyCoach() {
                             <div
                                 key={subject.name}
                                 className="
-                  rounded-xl border border-white/5
-                  bg-white/[0.02] p-4
-                "
+                                    rounded-xl border border-white/5
+                                    bg-white/[0.02] p-4
+                                "
                             >
 
                                 <div className="flex items-center justify-between">
@@ -477,8 +651,8 @@ function StudyCoach() {
                                     </div>
 
                                     <span className="text-sm font-semibold text-purple-300">
-                    {subject.progress}%
-                  </span>
+                                        {subject.progress}%
+                                    </span>
 
                                 </div>
 
@@ -531,12 +705,12 @@ function StudyCoach() {
                             <div
                                 key={topic.title}
                                 className="
-                  rounded-xl border border-white/5
-                  bg-white/[0.02] p-5
-                  transition-all duration-200
-                  hover:border-purple-500/20
-                  hover:bg-white/[0.04]
-                "
+                                    rounded-xl border border-white/5
+                                    bg-white/[0.02] p-5
+                                    transition-all duration-200
+                                    hover:border-purple-500/20
+                                    hover:bg-white/[0.04]
+                                "
                             >
 
                                 <div className="flex items-start justify-between gap-3">
@@ -547,15 +721,15 @@ function StudyCoach() {
 
                                     <span
                                         className="
-                      shrink-0 rounded-full
-                      bg-purple-500/10
-                      px-2.5 py-1
-                      text-[10px]
-                      text-purple-300
-                    "
+                                            shrink-0 rounded-full
+                                            bg-purple-500/10
+                                            px-2.5 py-1
+                                            text-[10px]
+                                            text-purple-300
+                                        "
                                     >
-                    {topic.difficulty}
-                  </span>
+                                        {topic.difficulty}
+                                    </span>
 
                                 </div>
 
@@ -566,12 +740,12 @@ function StudyCoach() {
                                 <button
                                     type="button"
                                     className="
-                    mt-4 flex items-center gap-2
-                    text-xs font-medium
-                    text-purple-400
-                    transition
-                    hover:text-purple-300
-                  "
+                                        mt-4 flex items-center gap-2
+                                        text-xs font-medium
+                                        text-purple-400
+                                        transition
+                                        hover:text-purple-300
+                                    "
                                 >
                                     Start Learning
                                     <ArrowRight size={14} />
@@ -592,13 +766,13 @@ function StudyCoach() {
 
                 <div
                     className="
-            relative overflow-hidden rounded-2xl
-            border border-purple-500/10
-            bg-gradient-to-r
-            from-purple-500/[0.06]
-            to-pink-500/[0.04]
-            p-5 sm:p-6
-          "
+                        relative overflow-hidden rounded-2xl
+                        border border-purple-500/10
+                        bg-gradient-to-r
+                        from-purple-500/[0.06]
+                        to-pink-500/[0.04]
+                        p-5 sm:p-6
+                    "
                 >
 
                     <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-purple-500/10 blur-3xl" />
@@ -620,10 +794,12 @@ function StudyCoach() {
                             </p>
 
                             <div className="mt-4 max-w-xl">
+
                                 <ProgressBar
-                                    value={61}
-                                    label="15.2 / 25 hours"
+                                    value={weeklyProgress}
+                                    label={`${studyHours} / 25 hours`}
                                 />
+
                             </div>
 
                         </div>
@@ -631,11 +807,15 @@ function StudyCoach() {
                         <div className="text-left sm:text-right">
 
                             <p className="text-2xl font-bold text-white">
-                                61%
+                                {Math.round(weeklyProgress)}%
                             </p>
 
                             <p className="mt-1 text-xs text-gray-600">
-                                9.8h remaining
+                                {Math.max(
+                                    25 - studyHours,
+                                    0
+                                )}
+                                h remaining
                             </p>
 
                         </div>

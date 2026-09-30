@@ -45,6 +45,7 @@ function Dashboard() {
         const fetchDashboard = async () => {
             try {
                 setLoading(true);
+                setError("");
 
                 const response = await api.get("/dashboard");
 
@@ -103,12 +104,21 @@ function Dashboard() {
     const user = dashboard?.user;
     const stats = dashboard?.stats;
 
+    const studyHours = stats?.studyHours || 0;
+    const dsaSolved = stats?.dsaSolved || 0;
+    const studyStreak = stats?.studyStreak || 0;
+
+    const dsaProgress = Math.min((dsaSolved / 100) * 100, 100);
+    const studyProgress = Math.min((studyHours / 100) * 100, 100);
+    const streakProgress = Math.min((studyStreak / 30) * 100, 100);
+
     return (
         <div className="min-h-full bg-[#09090f] p-4 sm:p-6 lg:p-8">
 
             {/* ================= HEADER ================= */}
 
             <div className="mb-8">
+
                 <div className="flex items-center gap-2">
                     <Sparkles
                         size={17}
@@ -123,6 +133,7 @@ function Dashboard() {
                 <div className="mt-2 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
 
                     <div>
+
                         <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl">
                             Good evening,{" "}
                             <span className="sakura-gradient-text">
@@ -136,6 +147,7 @@ function Dashboard() {
                         </p>
 
                         <div className="mt-3 flex flex-wrap gap-2">
+
                             <span className="rounded-full border border-purple-500/20 bg-purple-500/10 px-3 py-1 text-xs text-purple-400">
                                 🎯 {user?.targetRole || "Software Developer"}
                             </span>
@@ -147,10 +159,12 @@ function Dashboard() {
                             <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-gray-400">
                                 Japanese {user?.japaneseLevel || "N5"}
                             </span>
+
                         </div>
+
                     </div>
 
-                    {/* Streak */}
+                    {/* STREAK */}
 
                     <div className="flex w-fit items-center gap-3 rounded-xl border border-orange-500/10 bg-orange-500/[0.05] px-4 py-3">
 
@@ -160,17 +174,21 @@ function Dashboard() {
                         />
 
                         <div>
+
                             <p className="text-xs text-gray-500">
                                 Current streak
                             </p>
 
                             <p className="text-sm font-semibold text-white">
-                                Coming soon 🔥
+                                {studyStreak} days 🔥
                             </p>
+
                         </div>
 
                     </div>
+
                 </div>
+
             </div>
 
             {/* ================= STATS ================= */}
@@ -179,18 +197,18 @@ function Dashboard() {
 
                 <StatCard
                     title="Study Hours"
-                    value={`${stats?.studyHours || 0}h`}
+                    value={`${studyHours}h`}
                     subtitle="Tracked in Sakura AI"
                     icon={Clock3}
-                    progress={0}
+                    progress={studyProgress}
                 />
 
                 <StatCard
                     title="DSA Problems"
-                    value={stats?.dsaSolved || 0}
+                    value={dsaSolved}
                     subtitle="Problems solved"
                     icon={Code2}
-                    progress={0}
+                    progress={dsaProgress}
                 />
 
                 <StatCard
@@ -203,10 +221,10 @@ function Dashboard() {
 
                 <StatCard
                     title="Study Streak"
-                    value="Coming soon"
-                    subtitle="Streak tracking will be added"
-                    icon={BookOpen}
-                    progress={0}
+                    value={`${studyStreak} days`}
+                    subtitle="Current learning streak"
+                    icon={Flame}
+                    progress={streakProgress}
                 />
 
             </section>
@@ -221,6 +239,7 @@ function Dashboard() {
                     glow
                     className="xl:col-span-2"
                 >
+
                     <div className="p-6 sm:p-7">
 
                         <div className="flex items-start justify-between gap-4">
@@ -232,6 +251,7 @@ function Dashboard() {
                                 </div>
 
                                 <div>
+
                                     <h2 className="font-semibold text-white">
                                         Sakura's Insight
                                     </h2>
@@ -239,6 +259,7 @@ function Dashboard() {
                                     <p className="mt-0.5 text-xs text-gray-500">
                                         Personalized AI analysis
                                     </p>
+
                                 </div>
 
                             </div>
@@ -269,6 +290,7 @@ function Dashboard() {
                         </div>
 
                     </div>
+
                 </GlassCard>
 
                 {/* WEEKLY PROGRESS */}
@@ -278,6 +300,7 @@ function Dashboard() {
                     <div className="flex items-center justify-between">
 
                         <div>
+
                             <h2 className="font-semibold text-white">
                                 Weekly Progress
                             </h2>
@@ -285,6 +308,7 @@ function Dashboard() {
                             <p className="mt-1 text-xs text-gray-500">
                                 Your activity this week
                             </p>
+
                         </div>
 
                         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-500/10 text-purple-400">
@@ -297,17 +321,17 @@ function Dashboard() {
 
                         <ProgressBar
                             label="DSA"
-                            value={0}
+                            value={dsaProgress}
                         />
 
                         <ProgressBar
-                            label="React"
-                            value={0}
+                            label="Study"
+                            value={studyProgress}
                         />
 
                         <ProgressBar
-                            label="JavaScript"
-                            value={0}
+                            label="Streak"
+                            value={streakProgress}
                         />
 
                         <ProgressBar
@@ -318,7 +342,7 @@ function Dashboard() {
                     </div>
 
                     <p className="mt-5 text-xs text-gray-600">
-                        Detailed weekly analytics coming soon.
+                        Japanese progress tracking will be connected later.
                     </p>
 
                 </Card>
@@ -334,6 +358,7 @@ function Dashboard() {
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 
                         <div>
+
                             <h2 className="font-semibold text-white">
                                 Today's Tasks
                             </h2>
@@ -341,6 +366,7 @@ function Dashboard() {
                             <p className="mt-1 text-xs text-gray-500">
                                 Keep your momentum going
                             </p>
+
                         </div>
 
                         <span className="w-fit rounded-full border border-purple-500/20 bg-purple-500/10 px-3 py-1 text-xs font-medium text-purple-400">
@@ -365,9 +391,11 @@ function Dashboard() {
                                             : "border-gray-600 group-hover:border-purple-400"
                                     }`}
                                 >
+
                                     {task.completed && (
                                         <CheckCircle2 size={14} />
                                     )}
+
                                 </div>
 
                                 <div className="min-w-0 flex-1">
@@ -410,6 +438,7 @@ function Dashboard() {
             <section className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
 
                 <GlassCard>
+
                     <div className="p-5">
 
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400">
@@ -430,9 +459,11 @@ function Dashboard() {
                         </button>
 
                     </div>
+
                 </GlassCard>
 
                 <GlassCard>
+
                     <div className="p-5">
 
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-pink-500/10 text-pink-400">
@@ -453,9 +484,11 @@ function Dashboard() {
                         </button>
 
                     </div>
+
                 </GlassCard>
 
                 <GlassCard>
+
                     <div className="p-5">
 
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400">
@@ -476,6 +509,7 @@ function Dashboard() {
                         </button>
 
                     </div>
+
                 </GlassCard>
 
             </section>

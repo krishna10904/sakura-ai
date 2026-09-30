@@ -6,6 +6,8 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const studyRoutes = require("./routes/studyRoutes");
+const dsaRoutes = require("./routes/dsaRoutes");
+
 dotenv.config();
 
 const app = express();
@@ -17,6 +19,8 @@ app.use(express.json());
 app.use("/api/study", studyRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/dsa", dsaRoutes);
+
 app.get("/", (req, res) => {
     res.json({
         success: true,

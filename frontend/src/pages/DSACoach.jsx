@@ -1,485 +1,406 @@
+import { useEffect, useState } from "react";
 import {
     Code2,
+    CheckCircle2,
+    Circle,
     Flame,
     Target,
-    CheckCircle2,
-    Clock3,
-    Brain,
-    ArrowRight,
-    Lock,
-    Trophy,
+    Sparkles,
 } from "lucide-react";
 
 import Card from "../components/Card.jsx";
-import ProgressBar from "../components/ProgressBar.jsx";
-import Button from "../components/Button.jsx";
+import api from "../services/api.js";
 
-const topics = [
+const initialProblems = [
     {
-        name: "Arrays",
-        progress: 88,
-        solved: 22,
-        total: 25,
-    },
-    {
-        name: "Strings",
-        progress: 76,
-        solved: 19,
-        total: 25,
-    },
-    {
-        name: "Binary Search",
-        progress: 62,
-        solved: 8,
-        total: 13,
-    },
-    {
-        name: "Linked List",
-        progress: 48,
-        solved: 7,
-        total: 15,
-    },
-    {
-        name: "Dynamic Programming",
-        progress: 31,
-        solved: 5,
-        total: 16,
-    },
-];
-
-const problems = [
-    {
+        id: 1,
         title: "Two Sum",
-        topic: "Arrays",
         difficulty: "Easy",
-        time: "15 min",
-        completed: true,
+        topic: "Array",
+        solved: false,
     },
     {
-        title: "Longest Substring Without Repeating Characters",
-        topic: "Strings",
-        difficulty: "Medium",
-        time: "30 min",
-        completed: false,
+        id: 2,
+        title: "Contains Duplicate",
+        difficulty: "Easy",
+        topic: "Array",
+        solved: false,
     },
     {
-        title: "Binary Search",
-        topic: "Binary Search",
+        id: 3,
+        title: "Valid Anagram",
         difficulty: "Easy",
-        time: "20 min",
-        completed: false,
+        topic: "HashMap",
+        solved: false,
+    },
+    {
+        id: 4,
+        title: "Best Time to Buy and Sell Stock",
+        difficulty: "Easy",
+        topic: "Array",
+        solved: false,
+    },
+    {
+        id: 5,
+        title: "Valid Parentheses",
+        difficulty: "Easy",
+        topic: "Stack",
+        solved: false,
     },
 ];
 
 function DSACoach() {
+    const [problems, setProblems] = useState(initialProblems);
+    const [loadingId, setLoadingId] = useState(null);
+    const [loadingProblems, setLoadingProblems] = useState(true);
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+        const loadSolvedProblems = async () => {
+            try {
+                setLoadingProblems(true);
+                setError("");
+
+                const response = await api.get("/dsa");
+
+                if (response.data.success) {
+                    const solvedIds = new Set(
+                        response.data.solvedProblems.map(
+                            (problem) => Number(problem.problemId)
+                        )
+                    );
+
+                    setProblems(
+                        initialProblems.map((problem) => ({
+                            ...problem,
+                            solved: solvedIds.has(problem.id),
+                        }))
+                    );
+                }
+            } catch (error) {
+                console.error(
+                    "Load DSA progress error:",
+                    error
+                );
+
+                setError(
+                    error.response?.data?.message ||
+                    "Unable to load DSA progress"
+                );
+            } finally {
+                setLoadingProblems(false);
+            }
+        };
+
+        loadSolvedProblems();
+    }, []);
+
+    const solvedCount = problems.filter(
+        (problem) => problem.solved
+    ).length;
+
+    const markAsSolved = async (id) => {
+        const problem = problems.find(
+            (item) => item.id === id
+        );
+
+        if (!problem || problem.solved) {
+            return;
+        }
+
+        try {
+            setLoadingId(id);
+            setError("");
+
+            const response = await api.post("/dsa", {
+                problemId: problem.id,
+                title: problem.title,
+                difficulty: problem.difficulty,
+                topic: problem.topic,
+            });
+
+            if (response.data.success) {
+                setProblems((currentProblems) =>
+                    currentProblems.map((item) =>
+                        item.id === id
+                            ? {
+                                ...item,
+                                solved: true,
+                            }
+                            : item
+                    )
+                );
+            }
+        } catch (error) {
+            console.error(
+                "DSA update error:",
+                error
+            );
+
+            if (error.response?.status === 409) {
+                setProblems((currentProblems) =>
+                    currentProblems.map((item) =>
+                        item.id === id
+                            ? {
+                                ...item,
+                                solved: true,
+                            }
+                            : item
+                    )
+                );
+
+                setError(
+                    "This problem was already solved."
+                );
+            } else {
+                setError(
+                    error.response?.data?.message ||
+                    "Unable to update DSA progress"
+                );
+            }
+        } finally {
+            setLoadingId(null);
+        }
+    };
+
     return (
         <div className="min-h-full bg-[#09090f] p-4 sm:p-6 lg:p-8">
-            {/* Header */}
+
             <div className="mb-8">
+
                 <div className="flex items-center gap-2">
-                    <Code2
-                        size={18}
+                    <Sparkles
+                        size={17}
                         className="text-purple-400"
                     />
 
-                    <p className="text-xs font-medium uppercase tracking-widest text-purple-400 sm:text-sm">
+                    <p className="text-xs font-medium uppercase tracking-widest text-purple-400">
                         AI DSA Coach
                     </p>
                 </div>
 
-                <h1 className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl">
-                    Master <span className="sakura-gradient-text">DSA</span>
+                <h1 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
+                    Master DSA with{" "}
+                    <span className="sakura-gradient-text">
+                        Sakura
+                    </span>
                 </h1>
 
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-400 sm:text-base">
-                    Practice smarter, identify weak topics and build the
-                    problem-solving skills needed for technical interviews.
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-400">
+                    Practice coding problems, track your progress,
+                    and build strong problem-solving skills.
                 </p>
+
             </div>
 
-            {/* Stats */}
-            <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+
                 <Card>
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-gray-500">
-                                Problems Solved
-                            </p>
-
-                            <h2 className="mt-2 text-3xl font-bold text-white">
-                                87
-                            </h2>
-
-                            <p className="mt-2 text-xs text-gray-600">
-                                8 this week
-                            </p>
-                        </div>
+                    <div className="flex items-center gap-4">
 
                         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400">
-                            <CheckCircle2 size={21} />
+                            <Code2 size={20} />
                         </div>
+
+                        <div>
+                            <p className="text-xs text-gray-500">
+                                Problems
+                            </p>
+
+                            <p className="mt-1 text-xl font-bold text-white">
+                                {problems.length}
+                            </p>
+                        </div>
+
                     </div>
                 </Card>
 
                 <Card>
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-gray-500">
-                                Current Streak
-                            </p>
-
-                            <h2 className="mt-2 text-3xl font-bold text-white">
-                                12
-                            </h2>
-
-                            <p className="mt-2 text-xs text-gray-600">
-                                days
-                            </p>
-                        </div>
-
-                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-500/10 text-orange-400">
-                            <Flame size={21} />
-                        </div>
-                    </div>
-                </Card>
-
-                <Card>
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-gray-500">
-                                Accuracy
-                            </p>
-
-                            <h2 className="mt-2 text-3xl font-bold text-white">
-                                72%
-                            </h2>
-
-                            <p className="mt-2 text-xs text-green-400">
-                                +5% this month
-                            </p>
-                        </div>
+                    <div className="flex items-center gap-4">
 
                         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-500/10 text-green-400">
-                            <Target size={21} />
+                            <CheckCircle2 size={20} />
                         </div>
+
+                        <div>
+                            <p className="text-xs text-gray-500">
+                                Solved
+                            </p>
+
+                            <p className="mt-1 text-xl font-bold text-white">
+                                {solvedCount}
+                            </p>
+                        </div>
+
                     </div>
                 </Card>
 
                 <Card>
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-gray-500">
-                                Practice Time
-                            </p>
+                    <div className="flex items-center gap-4">
 
-                            <h2 className="mt-2 text-3xl font-bold text-white">
-                                18.5h
-                            </h2>
-
-                            <p className="mt-2 text-xs text-gray-600">
-                                this month
-                            </p>
-                        </div>
-
-                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-pink-500/10 text-pink-400">
-                            <Clock3 size={21} />
-                        </div>
-                    </div>
-                </Card>
-            </section>
-
-            {/* Main Grid */}
-            <section className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-3">
-                {/* Today's Challenge */}
-                <Card className="relative overflow-hidden xl:col-span-2">
-                    <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-purple-500/10 blur-3xl" />
-
-                    <div className="relative">
-                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                            <div>
-                                <div className="flex items-center gap-2">
-                  <span className="rounded-full bg-purple-500/10 px-3 py-1 text-xs font-medium text-purple-400">
-                    Today's Challenge
-                  </span>
-
-                                    <span className="rounded-full bg-yellow-500/10 px-3 py-1 text-xs text-yellow-400">
-                    Medium
-                  </span>
-                                </div>
-
-                                <h2 className="mt-4 text-xl font-bold text-white">
-                                    Longest Substring Without Repeating Characters
-                                </h2>
-
-                                <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-500">
-                                    Find the length of the longest substring without
-                                    repeating characters.
-                                </p>
-                            </div>
-
-                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400">
-                                <Brain size={23} />
-                            </div>
-                        </div>
-
-                        <div className="mt-6 flex flex-wrap items-center gap-4 text-xs text-gray-500">
-                            <span>📚 Strings</span>
-                            <span>⏱ 30 min</span>
-                            <span>🎯 Interview</span>
-                        </div>
-
-                        <div className="mt-6">
-                            <Button icon={ArrowRight}>
-                                Start Challenge
-                            </Button>
-                        </div>
-                    </div>
-                </Card>
-
-                {/* AI Insight */}
-                <Card>
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-pink-500/10 text-pink-400">
-                            🌸
+                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-500/10 text-orange-400">
+                            <Flame size={20} />
                         </div>
 
                         <div>
-                            <h2 className="font-semibold text-white">
-                                Sakura's Analysis
-                            </h2>
-
-                            <p className="mt-1 text-xs text-gray-600">
-                                Based on your recent practice
+                            <p className="text-xs text-gray-500">
+                                Practice Goal
                             </p>
-                        </div>
-                    </div>
 
-                    <p className="mt-5 text-sm leading-6 text-gray-400">
-                        Your array and string performance is improving. Your
-                        biggest current gap is{" "}
-                        <span className="font-medium text-purple-400">
-              Dynamic Programming
-            </span>
-                        .
-                    </p>
-
-                    <div className="mt-5 rounded-xl border border-purple-500/10 bg-purple-500/[0.04] p-4">
-                        <p className="text-xs leading-5 text-gray-500">
-                            Recommendation
-                        </p>
-
-                        <p className="mt-1 text-sm text-gray-300">
-                            Practice 2 DP problems every day for the next 7 days.
-                        </p>
-                    </div>
-                </Card>
-            </section>
-
-            {/* Topic Progress */}
-            <section className="mt-6">
-                <Card>
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                            <h2 className="font-semibold text-white">
-                                Topic Progress
-                            </h2>
-
-                            <p className="mt-1 text-xs text-gray-500">
-                                Your DSA topic mastery
+                            <p className="mt-1 text-xl font-bold text-white">
+                                {Math.min(solvedCount, 3)} / 3
                             </p>
                         </div>
 
-                        <span className="text-xs text-purple-400">
-              5 topics tracked
-            </span>
-                    </div>
-
-                    <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2">
-                        {topics.map((topic) => (
-                            <div
-                                key={topic.name}
-                                className="
-                  rounded-xl border border-white/5
-                  bg-white/[0.02] p-4
-                  transition-all duration-200
-                  hover:border-purple-500/20
-                  hover:bg-white/[0.04]
-                "
-                            >
-                                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-300">
-                    {topic.name}
-                  </span>
-
-                                    <span className="text-xs text-gray-600">
-                    {topic.solved}/{topic.total}
-                  </span>
-                                </div>
-
-                                <div className="mt-4">
-                                    <ProgressBar
-                                        value={topic.progress}
-                                        showValue
-                                    />
-                                </div>
-                            </div>
-                        ))}
                     </div>
                 </Card>
-            </section>
 
-            {/* Recommended Problems */}
-            <section className="mt-6">
-                <Card>
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                            <h2 className="font-semibold text-white">
-                                Recommended Problems
-                            </h2>
+            </div>
 
-                            <p className="mt-1 text-xs text-gray-500">
-                                Selected based on your current progress
-                            </p>
-                        </div>
-
-                        <button
-                            type="button"
-                            className="flex items-center gap-1 text-xs text-purple-400 transition hover:text-purple-300"
-                        >
-                            View all
-                            <ArrowRight size={13} />
-                        </button>
-                    </div>
-
-                    <div className="mt-5 space-y-3">
-                        {problems.map((problem) => (
-                            <div
-                                key={problem.title}
-                                className="
-                  flex flex-col gap-4 rounded-xl
-                  border border-white/5
-                  bg-white/[0.02]
-                  p-4
-                  transition-all duration-200
-                  hover:border-purple-500/20
-                  hover:bg-white/[0.04]
-                  sm:flex-row sm:items-center
-                "
-                            >
-                                <div
-                                    className={`
-                    flex h-10 w-10 shrink-0
-                    items-center justify-center
-                    rounded-xl
-                    ${
-                                        problem.completed
-                                            ? "bg-green-500/10 text-green-400"
-                                            : "bg-purple-500/10 text-purple-400"
-                                    }
-                  `}
-                                >
-                                    {problem.completed ? (
-                                        <CheckCircle2 size={19} />
-                                    ) : (
-                                        <Code2 size={19} />
-                                    )}
-                                </div>
-
-                                <div className="min-w-0 flex-1">
-                                    <h3 className="truncate text-sm font-medium text-white">
-                                        {problem.title}
-                                    </h3>
-
-                                    <div className="mt-1 flex flex-wrap gap-3">
-                    <span className="text-xs text-gray-600">
-                      {problem.topic}
-                    </span>
-
-                                        <span
-                                            className={`
-                        text-xs
-                        ${
-                                                problem.difficulty === "Easy"
-                                                    ? "text-green-400"
-                                                    : "text-yellow-400"
-                                            }
-                      `}
-                                        >
-                      {problem.difficulty}
-                    </span>
-
-                                        <span className="text-xs text-gray-600">
-                      {problem.time}
-                    </span>
-                                    </div>
-                                </div>
-
-                                {problem.completed ? (
-                                    <span className="flex items-center gap-1 text-xs text-green-400">
-                    <CheckCircle2 size={14} />
-                    Solved
-                  </span>
-                                ) : (
-                                    <button
-                                        type="button"
-                                        className="
-                      flex w-fit items-center gap-1
-                      rounded-lg border border-purple-500/20
-                      bg-purple-500/10
-                      px-3 py-2
-                      text-xs font-medium text-purple-400
-                      transition
-                      hover:bg-purple-500/20
-                    "
-                                    >
-                                        Practice
-                                        <ArrowRight size={13} />
-                                    </button>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                </Card>
-            </section>
-
-            {/* Locked AI Feature */}
-            <section className="mt-6">
-                <div
-                    className="
-            rounded-2xl border border-purple-500/10
-            bg-gradient-to-r
-            from-purple-500/[0.06]
-            to-pink-500/[0.04]
-            p-5
-          "
-                >
-                    <div className="flex gap-4">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400">
-                            <Trophy size={19} />
-                        </div>
-
-                        <div className="flex-1">
-                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                <div>
-                                    <h3 className="text-sm font-semibold text-white">
-                                        AI Interview Readiness
-                                    </h3>
-
-                                    <p className="mt-1 text-xs text-gray-500">
-                                        Sakura will estimate your interview readiness
-                                        from your DSA performance.
-                                    </p>
-                                </div>
-
-                                <span className="flex w-fit items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] text-gray-500">
-                  <Lock size={11} />
-                  AI Phase
-                </span>
-                            </div>
-                        </div>
-                    </div>
+            {error && (
+                <div className="mt-6 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-400">
+                    {error}
                 </div>
-            </section>
+            )}
+
+            <Card className="mt-6">
+
+                <div className="flex items-center justify-between">
+
+                    <div>
+                        <h2 className="font-semibold text-white">
+                            Today's Progress
+                        </h2>
+
+                        <p className="mt-1 text-xs text-gray-500">
+                            Keep solving to improve your DSA skills.
+                        </p>
+                    </div>
+
+                    <Target
+                        size={20}
+                        className="text-purple-400"
+                    />
+
+                </div>
+
+                <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/5">
+
+                    <div
+                        className="h-full rounded-full bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-500"
+                        style={{
+                            width: `${Math.min(
+                                (solvedCount / 3) * 100,
+                                100
+                            )}%`,
+                        }}
+                    />
+
+                </div>
+
+                <p className="mt-2 text-xs text-gray-500">
+                    {solvedCount} of 3 problems completed
+                </p>
+
+            </Card>
+
+            <div className="mt-6">
+
+                <div className="mb-4">
+                    <h2 className="text-lg font-semibold text-white">
+                        Today's Problems
+                    </h2>
+
+                    <p className="mt-1 text-xs text-gray-500">
+                        Complete problems and track your progress.
+                    </p>
+                </div>
+
+                {loadingProblems ? (
+                    <div className="rounded-xl border border-white/5 bg-white/[0.02] p-6 text-center">
+                        <p className="text-sm text-gray-400">
+                            Loading your DSA progress...
+                        </p>
+                    </div>
+                ) : (
+                    <div className="space-y-3">
+
+                        {problems.map((problem) => (
+
+                            <div
+                                key={problem.id}
+                                className="group rounded-xl border border-white/5 bg-white/[0.02] p-4 transition-all hover:border-purple-500/20 hover:bg-white/[0.04]"
+                            >
+
+                                <div className="flex items-center gap-4">
+
+                                    <div>
+                                        {problem.solved ? (
+                                            <CheckCircle2
+                                                size={22}
+                                                className="text-green-400"
+                                            />
+                                        ) : (
+                                            <Circle
+                                                size={22}
+                                                className="text-gray-600"
+                                            />
+                                        )}
+                                    </div>
+
+                                    <div className="min-w-0 flex-1">
+
+                                        <h3
+                                            className={`text-sm font-medium ${
+                                                problem.solved
+                                                    ? "text-gray-500 line-through"
+                                                    : "text-white"
+                                            }`}
+                                        >
+                                            {problem.title}
+                                        </h3>
+
+                                        <div className="mt-2 flex flex-wrap gap-2">
+
+                                            <span className="rounded-full border border-green-500/20 bg-green-500/10 px-2.5 py-1 text-[11px] text-green-400">
+                                                {problem.difficulty}
+                                            </span>
+
+                                            <span className="rounded-full border border-purple-500/20 bg-purple-500/10 px-2.5 py-1 text-[11px] text-purple-400">
+                                                {problem.topic}
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                    {!problem.solved && (
+                                        <button
+                                            onClick={() =>
+                                                markAsSolved(problem.id)
+                                            }
+                                            disabled={
+                                                loadingId === problem.id
+                                            }
+                                            className="shrink-0 rounded-lg border border-purple-500/20 bg-purple-500/10 px-3 py-2 text-xs font-medium text-purple-400 transition hover:bg-purple-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                                        >
+                                            {loadingId === problem.id
+                                                ? "Saving..."
+                                                : "Mark Solved"}
+                                        </button>
+                                    )}
+
+                                </div>
+
+                            </div>
+
+                        ))}
+
+                    </div>
+                )}
+
+            </div>
+
         </div>
     );
 }
